@@ -123,6 +123,8 @@ func (ll *LogListener) startGELF(address string) {
 		ll.logEntriesError <- true
 	}
 
+	logp.Info("Listening for GELF encoded messages on %s...", address)
+
 	for {
 		msg, err := gr.ReadMessage()
 		if err != nil {
@@ -237,13 +239,17 @@ func (ll *LogListener) processGelfMessage(msg *gelf.Message) {
 	event["full_message"] = msg.Full
 
 	// 1 ms = 1000000 ns
-	millisec := msg.TimeUnix - float64(int64(msg.TimeUnix))
-	ms := fmt.Sprintf("%.4f", millisec)
-	msf, err := strconv.ParseFloat(ms, 64)
-	if err != nil {
+	if msg.TimeUnix == 0 {
 		event["@timestamp"] = common.Time(time.Now())
 	} else {
-		event["@timestamp"] = common.Time(time.Unix(int64(msg.TimeUnix), int64(msf)*1000000))
+		millisec := msg.TimeUnix - float64(int64(msg.TimeUnix))
+		ms := fmt.Sprintf("%.4f", millisec)
+		msf, err := strconv.ParseFloat(ms, 64)
+		if err != nil {
+			event["@timestamp"] = common.Time(time.Now())
+		} else {
+			event["@timestamp"] = common.Time(time.Unix(int64(msg.TimeUnix), int64(msf)*1000000))
+		}
 	}
 
 	event["level"] = msg.Level

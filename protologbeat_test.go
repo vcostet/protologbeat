@@ -20,7 +20,7 @@ func TestGreylogReceive(t *testing.T) {
 	logEntriesRecieved = make(chan common.MapStr, 1)
 	logEntriesErrors = make(chan bool, 1)
 
-	ll := protolog.NewLogListener(config.Config{EnableGelf: true, Port: 6000, DefaultEsLogType: "graylog"})
+	ll := protolog.NewLogListener(config.Config{EnableGelf: true, Port: 12000, DefaultEsLogType: "graylog"})
 
 	go func(logs chan common.MapStr, errs chan bool) {
 		ll.Start(logs, errs)
@@ -28,7 +28,7 @@ func TestGreylogReceive(t *testing.T) {
 
 	var event common.MapStr
 
-	gw, err := gelf.NewWriter("127.0.0.1:6000")
+	gw, err := gelf.NewWriter("127.0.0.1:12000")
 	if err != nil {
 		t.Errorf("NewWriter: %s", err)
 		return
